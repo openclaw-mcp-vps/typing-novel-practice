@@ -1,103 +1,218 @@
-export type Chapter = {
+export interface Passage {
   id: string;
   title: string;
-  passage: string;
-};
+  text: string;
+}
 
-export type Novel = {
+export interface Chapter {
+  number: number;
+  title: string;
+  passages: Passage[];
+}
+
+export interface Novel {
   id: string;
   title: string;
   author: string;
-  blurb: string;
+  hook: string;
   chapters: Chapter[];
-};
+}
 
 export const novels: Novel[] = [
   {
     id: "pride-and-prejudice",
     title: "Pride and Prejudice",
     author: "Jane Austen",
-    blurb: "Sharp dialogue and social wit that keeps your fingers moving.",
+    hook: "Crisp dialogue and quick wit for rhythm and punctuation control.",
     chapters: [
       {
-        id: "chapter-1",
-        title: "Chapter 1",
-        passage:
-          "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife. However little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered the rightful property of some one or other of their daughters."
+        number: 1,
+        title: "A Truth Universally Acknowledged",
+        passages: [
+          {
+            id: "pp-1-1",
+            title: "Opening Line",
+            text:
+              "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+          },
+          {
+            id: "pp-1-2",
+            title: "Mrs. Bennet's Urgency",
+            text:
+              "My dear Mr. Bennet, have you heard that Netherfield Park is let at last? She spoke with lively impatience, as if the future of every daughter depended on the answer.",
+          },
+        ],
       },
       {
-        id: "chapter-2",
-        title: "Chapter 2",
-        passage:
-          "Mr. Bennet was among the earliest of those who waited on Mr. Bingley. He had always intended to visit him, though to the last always assuring his wife that he should not go; and till the evening after the visit was paid she had no knowledge of it. It was then disclosed in the following manner. Observing his second daughter employed in trimming a hat, he suddenly addressed her with: 'I hope Mr. Bingley will like it, Lizzy.'"
+        number: 2,
+        title: "Netherfield Arrivals",
+        passages: [
+          {
+            id: "pp-2-1",
+            title: "The Ball and First Impressions",
+            text:
+              "Mr. Darcy soon drew the attention of the room by his fine, tall person, handsome features, noble mien; and yet his manners gave a disgust which turned the tide of his popularity.",
+          },
+          {
+            id: "pp-2-2",
+            title: "Elizabeth's Reading of Character",
+            text:
+              "She had a lively, playful disposition, which delighted in anything ridiculous. A confident tone, unsupported by generosity, never escaped her notice.",
+          },
+        ],
       },
       {
-        id: "chapter-3",
-        title: "Chapter 3",
-        passage:
-          "The ladies of Longbourn soon waited on those of Netherfield. The visit was soon returned in due form. Miss Bennet's pleasing manners grew on the goodwill of Mrs. Hurst and Miss Bingley; and though the mother was found to be intolerable, and the younger sisters not worth speaking to, a wish of being better acquainted with them was expressed toward the two eldest."
-      }
-    ]
+        number: 3,
+        title: "Letters and Realizations",
+        passages: [
+          {
+            id: "pp-3-1",
+            title: "A Changed Perspective",
+            text:
+              "Till this moment, I never knew myself. Her pride had been wounded, but her judgment had also been corrected, and she read every sentence with renewed attention.",
+          },
+          {
+            id: "pp-3-2",
+            title: "Measured Reflection",
+            text:
+              "Vanity, not love, has been my folly. I have courted prepossession and ignorance, and driven reason away where either were concerned.",
+          },
+        ],
+      },
+    ],
   },
   {
-    id: "sherlock-holmes",
-    title: "The Adventures of Sherlock Holmes",
-    author: "Arthur Conan Doyle",
-    blurb: "Fast-paced deductions for rhythm, precision, and sustained focus.",
+    id: "moby-dick",
+    title: "Moby-Dick",
+    author: "Herman Melville",
+    hook: "Long cadences that build endurance and concentration.",
     chapters: [
       {
-        id: "bohemia-1",
-        title: "A Scandal in Bohemia",
-        passage:
-          "To Sherlock Holmes she is always the woman. I have seldom heard him mention her under any other name. In his eyes she eclipses and predominates the whole of her sex. It was not that he felt any emotion akin to love for Irene Adler. All emotions, and that one particularly, were abhorrent to his cold, precise but admirably balanced mind."
+        number: 1,
+        title: "Loomings",
+        passages: [
+          {
+            id: "md-1-1",
+            title: "Call Me Ishmael",
+            text:
+              "Call me Ishmael. Some years ago, never mind how long precisely, having little or no money in my purse, I thought I would sail about a little and see the watery part of the world.",
+          },
+          {
+            id: "md-1-2",
+            title: "A Restless Mind",
+            text:
+              "Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul, then I account it high time to get to sea as soon as I can.",
+          },
+        ],
       },
       {
-        id: "bohemia-2",
-        title: "A Scandal in Bohemia, Part II",
-        passage:
-          "I had seen little of Holmes lately. My marriage had drifted us away from each other. But one night, when the wind howled outside and the rain beat fiercely against the windows, Holmes stepped into my room with that quiet, alert expression that told me his mind had seized on a fresh problem worth all his powers."
+        number: 2,
+        title: "The Spouter-Inn",
+        passages: [
+          {
+            id: "md-2-1",
+            title: "Night Quarters",
+            text:
+              "A curious little deformed old house, smelling of old oil and sea salt, stood with a weather-beaten sign as if every gale in the Atlantic had written on it.",
+          },
+          {
+            id: "md-2-2",
+            title: "Unexpected Company",
+            text:
+              "Better sleep with a sober cannibal than a drunken Christian. The thought came like a practical rule, not a joke, in that unsettled room.",
+          },
+        ],
       },
       {
-        id: "league-1",
-        title: "The Red-Headed League",
-        passage:
-          "I had called upon my friend, Mr. Sherlock Holmes, one day in the autumn of last year and found him in deep conversation with a very stout, florid-faced, elderly gentleman with fiery red hair. With an apology for my intrusion, I was about to withdraw when Holmes pulled me abruptly into the room and closed the door behind me."
-      }
-    ]
+        number: 3,
+        title: "The Quarter-Deck",
+        passages: [
+          {
+            id: "md-3-1",
+            title: "Ahab's Oath",
+            text:
+              "Talk not to me of blasphemy, man; I would strike the sun if it insulted me. The crew felt the force of his will before they understood his words.",
+          },
+          {
+            id: "md-3-2",
+            title: "A Singular Resolve",
+            text:
+              "All visible objects are but as pasteboard masks. If man will strike, strike through the mask. There was no room in him for half measures.",
+          },
+        ],
+      },
+    ],
   },
   {
     id: "dracula",
     title: "Dracula",
     author: "Bram Stoker",
-    blurb: "Atmospheric prose that rewards control and endurance.",
+    hook: "Tense journal prose that sharpens consistency under pressure.",
     chapters: [
       {
-        id: "dracula-1",
+        number: 1,
         title: "Jonathan Harker's Journal",
-        passage:
-          "Left Munich at 8:35 p.m. on 1st May, arriving at Vienna early next morning; should have arrived at 6:46, but train was an hour late. Buda-Pesth seems a wonderful place, from the glimpse which I got of it from the train and the little I could walk through the streets. I feared to go very far from the station, as we had arrived late and would start as near the correct time as possible."
+        passages: [
+          {
+            id: "dr-1-1",
+            title: "Arrival in Transylvania",
+            text:
+              "As the evening fell, the shadows of the great mountains grew deeper and darker, and the coach seemed to drive straight into a wall of night.",
+          },
+          {
+            id: "dr-1-2",
+            title: "At the Castle Door",
+            text:
+              "A tall old man, clean shaven save for a long white moustache, stood in the doorway and held out his hand with a courtly gesture.",
+          },
+        ],
       },
       {
-        id: "dracula-2",
-        title: "The Castle",
-        passage:
-          "As I write there is in the passage below a sound of many feet and the crash of many voices. I am in a prison, and I can see no way out. The castle is a veritable prison, and I am a prisoner. Yet there are moments when the moonlight on the crags gives the whole scene a beauty so strange that terror and wonder seem to live together in the same breath."
+        number: 2,
+        title: "The Count's House",
+        passages: [
+          {
+            id: "dr-2-1",
+            title: "No Reflection",
+            text:
+              "This time there could be no error, for the man was close to me, and I could see him over my shoulder. But there was no reflection of him in the mirror.",
+          },
+          {
+            id: "dr-2-2",
+            title: "Locked In",
+            text:
+              "The castle is a veritable prison, and I am a prisoner. The words felt calm on the page, yet my hand shook as I wrote them.",
+          },
+        ],
       },
       {
-        id: "dracula-3",
-        title: "Night Visitors",
-        passage:
-          "All at once the moonlight was obscured by a great cloud, and in the darkness I heard a strange, low laugh, very sweet and very bitter at the same time. Then there came a rustling at the window, and three figures stood in the room, women by their dress and manner, but with something in their eyes that made my blood run cold."
-      }
-    ]
-  }
+        number: 3,
+        title: "Mina's Notes",
+        passages: [
+          {
+            id: "dr-3-1",
+            title: "Gathering Evidence",
+            text:
+              "We must keep writing everything down exactly as it happened, for memory grows uncertain when fear has had its say.",
+          },
+          {
+            id: "dr-3-2",
+            title: "Resolve",
+            text:
+              "Our work is not done by courage alone. We need accuracy, patience, and one clear account that every one of us can trust.",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
-export function findNovel(novelId: string) {
-  return novels.find((novel) => novel.id === novelId) ?? novels[0];
+export function getNovelById(novelId: string): Novel | undefined {
+  return novels.find((novel) => novel.id === novelId);
 }
 
-export function findChapter(novelId: string, chapterId: string) {
-  const novel = findNovel(novelId);
-  return novel.chapters.find((chapter) => chapter.id === chapterId) ?? novel.chapters[0];
+export function getChapter(novelId: string, chapterNumber: number): Chapter | undefined {
+  return getNovelById(novelId)?.chapters.find(
+    (chapter) => chapter.number === chapterNumber,
+  );
 }

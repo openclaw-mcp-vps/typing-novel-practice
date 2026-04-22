@@ -1,56 +1,58 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "react-hot-toast";
+import { IBM_Plex_Mono, Playfair_Display } from "next/font/google";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"]
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"]
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://typing-novel-practice.com"),
-  title: "Typing Novel Practice | Learn typing by retyping classic novels",
+  title: {
+    default: "Typing Novel Practice",
+    template: "%s | Typing Novel Practice",
+  },
   description:
-    "Build speed and accuracy by typing your way through classic novels. Chapter-by-chapter practice with real-time WPM, accuracy tracking, and progress analytics.",
+    "Learn typing by retyping classic novels. Improve WPM and accuracy with chapter-based practice designed for remote professionals.",
+  keywords: [
+    "typing practice",
+    "typing speed",
+    "wpm training",
+    "literature typing",
+    "remote work productivity",
+  ],
   openGraph: {
     title: "Typing Novel Practice",
-    description: "Retype classic literature to improve typing speed and accuracy with real-time feedback.",
-    url: "https://typing-novel-practice.com",
+    description:
+      "Retype classic novel passages, track WPM live, and unlock chapters as your accuracy improves.",
+    type: "website",
     siteName: "Typing Novel Practice",
-    type: "website"
   },
   twitter: {
     card: "summary_large_image",
     title: "Typing Novel Practice",
-    description: "Learn typing by retyping classic novels chapter by chapter."
+    description:
+      "Build speed and precision with a typing app made for people who type all day.",
   },
-  alternates: {
-    canonical: "/"
-  }
+  metadataBase: new URL("https://typing-novel-practice.example.com"),
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${playfair.variable} ${plexMono.variable}`}>
+      <body className="min-h-screen bg-background text-foreground antialiased">
         {children}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "#161b22",
-              color: "#e6edf3",
-              border: "1px solid #30363d"
-            }
-          }}
-        />
       </body>
     </html>
   );

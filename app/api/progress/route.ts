@@ -1,70 +1,131 @@
-import crypto from "node:crypto";
+import { randomUUID } from "node:crypto";
 
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
-import { findNovel } from "@/lib/novels";
-import { getUserProgress, upsertUserProgress } from "@/lib/db";
-import type { TypingStats } from "@/lib/typing-stats";
+import {
+  ACCESS_COOKIE_NAME,
+  ACCESS_COOKIE_VALUE,
+  COOKIE_MAX_AGE_SECONDS,
+  USER_COOKIE_NAME,
+  hasAccessCookie,
+} from "@/lib/auth";
+import { getChapter, getNovelById } from "@/lib/novels";
+import { getProgressSummary, recordPracticeAttempt } from "@/lib/progress-store";
 
-function getOrCreateUserId(existing: string | undefined) {
-  return existing ?? crypto.randomUUID();
+export const runtime = "nodejs";
+
+interface ProgressPostBody {
+  novelId: string;
+  chapterNumber: number;
+  passageId: string;
+  wpm: number;
+  accuracy: number;
+  elapsedMs: number;
+  charactersTyped: number;
+  completed: boolean;
+}
+
+async function getSessionContext() {
+  const cookieStore = await cookies();
+
+  let userId = cookieStore.get(USER_COOKIE_NAME)?.value;
+  if (!userId) {
+    userId = randomUUID();
+    cookieStore.set(USER_COOKIE_NAME, userId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: COOKIE_MAX_AGE_SECONDS,
+    });
+  }
+
+  const hasAccess = hasAccessCookie(cookieStore.get(ACCESS_COOKIE_NAME)?.value);
+
+  return {
+    userId,
+    hasAccess,
+  };
 }
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("tnp_user")?.value;
+  const { userId, hasAccess } = await getSessionContext();
 
-  if (!userId) {
-    return NextResponse.json({ progress: null });
+  if (!hasAccess) {
+    return NextResponse.json(
+      { message: "An active subscription cookie is required to read progress." },
+      { status: 403 },
+    );
   }
 
-  const progress = await getUserProgress(userId);
+  const progress = await getProgressSummary(userId);
   return NextResponse.json({ progress });
 }
 
-export async function POST(req: Request) {
-  const body = (await req.json()) as { novelId: string; chapterId: string; stats: TypingStats; completed: boolean };
-  const cookieStore = await cookies();
+export async function POST(request: Request) {
+  const { userId, hasAccess } = await getSessionContext();
 
-  const userId = getOrCreateUserId(cookieStore.get("tnp_user")?.value);
-  const novel = findNovel(body.novelId);
-  const chapter = novel.chapters.find((item) => item.id === body.chapterId) ?? novel.chapters[0];
+  if (!hasAccess) {
+    return NextResponse.json(
+      { message: "An active subscription cookie is required to save progress." },
+      { status: 403 },
+    );
+  }
 
-  const progress = await upsertUserProgress(userId, (current) => {
-    const completedChapters = new Set(current?.completedChapters ?? []);
+  let body: ProgressPostBody;
 
-    if (body.completed) {
-      completedChapters.add(`${novel.id}:${chapter.id}`);
-    }
+  try {
+    body = (await request.json()) as ProgressPostBody;
+  } catch {
+    return NextResponse.json({ message: "Invalid JSON body." }, { status: 400 });
+  }
 
-    return {
-      currentNovelId: novel.id,
-      currentChapterId: chapter.id,
-      completedChapters: [...completedChapters],
-      sessions: [
-        ...(current?.sessions ?? []),
-        {
-          novelId: novel.id,
-          chapterId: chapter.id,
-          completed: body.completed,
-          accuracy: body.stats.accuracy,
-          netWpm: body.stats.netWpm,
-          grossWpm: body.stats.grossWpm,
-          elapsedSeconds: body.stats.elapsedSeconds,
-          timestamp: new Date().toISOString()
-        }
-      ]
-    };
+  if (
+    typeof body.novelId !== "string" ||
+    typeof body.passageId !== "string" ||
+    typeof body.chapterNumber !== "number" ||
+    typeof body.wpm !== "number" ||
+    typeof body.accuracy !== "number" ||
+    typeof body.elapsedMs !== "number" ||
+    typeof body.charactersTyped !== "number" ||
+    typeof body.completed !== "boolean"
+  ) {
+    return NextResponse.json(
+      { message: "Request body fields are invalid or incomplete." },
+      { status: 400 },
+    );
+  }
+
+  const novel = getNovelById(body.novelId);
+  if (!novel) {
+    return NextResponse.json({ message: "Unknown novel." }, { status: 400 });
+  }
+
+  const chapter = getChapter(body.novelId, body.chapterNumber);
+  if (!chapter) {
+    return NextResponse.json({ message: "Unknown chapter." }, { status: 400 });
+  }
+
+  const passage = chapter.passages.find((item) => item.id === body.passageId);
+  if (!passage) {
+    return NextResponse.json({ message: "Unknown passage." }, { status: 400 });
+  }
+
+  const progress = await recordPracticeAttempt({
+    userId,
+    novelId: novel.id,
+    novelTitle: novel.title,
+    chapterNumber: chapter.number,
+    chapterTitle: chapter.title,
+    passageId: passage.id,
+    passageTitle: passage.title,
+    wpm: Number.isFinite(body.wpm) ? body.wpm : 0,
+    accuracy: Number.isFinite(body.accuracy) ? body.accuracy : 0,
+    elapsedMs: Math.max(0, body.elapsedMs),
+    charactersTyped: Math.max(0, body.charactersTyped),
+    completed: body.completed,
   });
 
-  const response = NextResponse.json({ progress });
-  response.cookies.set("tnp_user", userId, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365
-  });
-
-  return response;
+  return NextResponse.json({ progress, access: ACCESS_COOKIE_VALUE });
 }
